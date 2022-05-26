@@ -123,3 +123,27 @@ func Shuffle(cards []Card) []Card {
 	}
 	return shuffled
 }
+
+func Jokers(n int) func([]Card) []Card {
+	return func(cards []Card) []Card {
+		for i := 0; i < n; i++ {
+			cards = append(cards, Card{
+				Rank: Rank(i),
+				Suit: Joker,
+			})
+		}
+		return cards
+	}
+}
+
+func Filter(f func(card Card) bool) func([]Card) []Card {
+	return func(cards []Card) []Card {
+		var filtered []Card
+		for _, c := range cards {
+			if !f(c) {
+				filtered = append(filtered, c)
+			}
+		}
+		return filtered
+	}
+}

@@ -25,7 +25,7 @@ func ExampleCard() {
 func TestNew(t *testing.T) {
 	cards := NewDeck()
 	if len(cards) != 13*4 {
-		t.Fatalf("wrong number of cards in deck")
+		t.Fatal("wrong number of cards in deck")
 	}
 }
 
@@ -91,5 +91,30 @@ func TestSort(t *testing.T) {
 	cards = Sort(More)(cards)
 	if !Equal(cards, sortedCards) {
 		t.Fatalf("%s not sorted correctly", cards)
+	}
+}
+
+func TestJokers(t *testing.T) {
+	cards := NewDeck(Jokers(4))
+	count := 0
+	for _, c := range cards {
+		if c.Suit == Joker {
+			count++
+		}
+	}
+	if count != 4 {
+		t.Fatal("expecting 4 jokers, received:", count)
+	}
+}
+
+func TestFilter(t *testing.T) {
+	noTwosThrees := func(c Card) bool {
+		return c.Rank == Two || c.Rank == Three
+	}
+	cards := NewDeck(Filter(noTwosThrees))
+	for _, c := range cards {
+		if c.Rank == Two || c.Rank == Three {
+			t.Fatal("2s and 3s should be filtered out of the deck")
+		}
 	}
 }
