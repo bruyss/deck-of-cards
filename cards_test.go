@@ -34,16 +34,16 @@ func TestEqual(t *testing.T) {
 	c2 := Card{Rank: Ace, Suit: Heart}
 	c3 := Card{Rank: Two, Suit: Heart}
 	c4 := Card{Rank: Ace, Suit: Club}
-	if !c1.Equal(c2) {
+	if !c1.EqualCard(c2) {
 		t.Fatalf("%s and %s are equal cards", c1, c2)
 	}
-	if c1.Equal(c3) {
+	if c1.EqualCard(c3) {
 		t.Fatalf("%s and %s have a different rank", c1, c3)
 	}
-	if c1.Equal(c4) {
+	if c1.EqualCard(c4) {
 		t.Fatalf("%s and %s have a different suit", c1, c4)
 	}
-	if c3.Equal(c4) {
+	if c3.EqualCard(c4) {
 		t.Fatalf("%s and %s are different cards", c3, c4)
 	}
 }

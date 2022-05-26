@@ -1,5 +1,6 @@
 //go:generate stringer -type=Suit,Rank
 
+// Package deck provides a representation of a deck of cards
 package deck
 
 import (
@@ -9,6 +10,7 @@ import (
 	"time"
 )
 
+// Suit represents a cards' suit
 type Suit uint8
 
 const (
@@ -21,6 +23,7 @@ const (
 
 var suits = [...]Suit{Spade, Diamond, Club, Heart}
 
+// Rank represents a cards' value
 type Rank uint8
 
 const (
@@ -45,6 +48,7 @@ const (
 	maxRank = King
 )
 
+// Card is a type representing a playing card
 type Card struct {
 	Suit
 	Rank
@@ -57,37 +61,44 @@ func (c Card) String() string {
 	return fmt.Sprintf("%s of %ss", c.Rank.String(), c.Suit.String())
 }
 
-func (c Card) numericRank() int {
+func (c Card) numericValue() int {
 	return int(c.Suit)*int(maxRank) + int(c.Rank)
 }
 
+// Less returns true if card at index i has a lower numerical value than the card at index j
 func Less(cards []Card) func(i, j int) bool {
 	return func(i, j int) bool {
-		return cards[i].numericRank() < cards[j].numericRank()
+		return cards[i].numericValue() < cards[j].numericValue()
 	}
 }
 
+// More returns true if card at index i has a higher numerical value than the card at index j
 func More(cards []Card) func(i, j int) bool {
 	return func(i, j int) bool {
-		return cards[i].numericRank() > cards[j].numericRank()
+		return cards[i].numericValue() > cards[j].numericValue()
 	}
 }
-func (c1 Card) Equal(c2 Card) bool {
-	return int(c1.Suit) == int(c2.Suit) && int(c1.Rank) == int(c2.Rank)
+
+// EqualCard returns true if c and c2 have the same numerical value
+func (c Card) EqualCard(c2 Card) bool {
+	return c.numericValue() == c2.numericValue()
 }
 
+// Equal returns true if both slices contain the same cards in the same order
 func Equal(d1, d2 []Card) bool {
 	if len(d1) != len(d2) {
 		return false
 	}
 	for i := range d1 {
-		if !d1[i].Equal(d2[i]) {
+		if !d1[i].EqualCard(d2[i]) {
 			return false
 		}
 	}
 	return true
 }
 
+// NewDeck creates a new deck of cards
+// Available options: DefaultSort, Sort, Shuffle, Jokers, Filter, Deck
 func NewDeck(opts ...func([]Card) []Card) []Card {
 	var cards []Card
 	for _, suit := range suits {
@@ -102,11 +113,13 @@ func NewDeck(opts ...func([]Card) []Card) []Card {
 	return cards
 }
 
+// DefaultSort sorts the cards like a new deck would be
 func DefaultSort(cards []Card) []Card {
 	sort.Slice(cards, Less(cards))
 	return cards
 }
 
+// Sort sorts the deck with a custom sort function
 func Sort(less func(cards []Card) func(i, j int) bool) func([]Card) []Card {
 	return func(cards []Card) []Card {
 		sort.Slice(cards, less(cards))
@@ -114,6 +127,7 @@ func Sort(less func(cards []Card) func(i, j int) bool) func([]Card) []Card {
 	}
 }
 
+// Shuffle randomizes the order of the deck
 func Shuffle(cards []Card) []Card {
 	shuffled := make([]Card, len(cards))
 	r := rand.New(rand.NewSource(time.Now().Unix()))
@@ -124,6 +138,7 @@ func Shuffle(cards []Card) []Card {
 	return shuffled
 }
 
+// Jokers adds n jokers to the deck
 func Jokers(n int) func([]Card) []Card {
 	return func(cards []Card) []Card {
 		for i := 0; i < n; i++ {
@@ -136,6 +151,7 @@ func Jokers(n int) func([]Card) []Card {
 	}
 }
 
+// Filter removes the cards satisfying the filter function conditions from the deck
 func Filter(f func(card Card) bool) func([]Card) []Card {
 	return func(cards []Card) []Card {
 		var filtered []Card
@@ -148,6 +164,8 @@ func Filter(f func(card Card) bool) func([]Card) []Card {
 	}
 }
 
+// Deck copies the deck n times
+// Be aware of the order in which this option is called when making a new deck
 func Deck(n int) func([]Card) []Card {
 	return func(cards []Card) []Card {
 		var combinedDeck []Card
