@@ -118,3 +118,10 @@ func TestFilter(t *testing.T) {
 		}
 	}
 }
+
+func TestDeck(t *testing.T) {
+	cards := NewDeck(Deck(3))
+	if len(cards) != 13*4*3 {
+		t.Fatalf("expected %d cards, received %d cards", 13*4*3, len(cards))
+	}
+}
