@@ -1,4 +1,4 @@
-package main
+package deck
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// Generic playing card type
+// Card - Generic playing card type
 type Card struct {
 	value string
 	suit  string
@@ -45,15 +45,57 @@ func (c Card) numericValue() int {
 	return numvalue
 }
 
-// Create a new deck of cards with a given set of values and suits
-func New(values []string, suits []string, options ...func(*[]Card)) ([]Card, error) {
+// suitValue returns the value of the card suit
+func (c Card) suitValue() (value int) {
+	switch c.suit {
+	case "spades":
+		value = 1
+	case "diamonds":
+		value = 2
+	case "clubs":
+		value = 3
+	case "hearts":
+		value = 4
+	default:
+		value = 0
+	}
+	return
+}
+
+func (c Card) Less(c2 Card) bool {
+	if c.sameSuit(c2) {
+		return c.numericValue() < c2.numericValue()
+	} else {
+		return c.suitValue() < c2.suitValue()
+	}
+}
+
+type cardSorter struct {
+	deck []Card
+	by   func(c1, c2 *Card) bool
+}
+
+func (s *cardSorter) Len() int {
+	return len(s.deck)
+}
+
+func (s *cardSorter) Swap(i, j int) {
+	s.deck[i], s.deck[j] = s.deck[j], s.deck[i]
+}
+
+func (s *cardSorter) Less(i, j int) bool {
+	return s.by(&s.deck[i], &s.deck[j])
+}
+
+// NewDeck - Create a new deck of cards with a given set of values and suits
+func NewDeck(values []string, suits []string, options ...func(*[]Card)) ([]Card, error) {
 	if len(values) == 0 {
-		err := errors.New("Length of values slice must be greater than 0!")
+		err := errors.New("length of values slice must be greater than 0")
 		log.Fatal(err)
 		return nil, err
 	}
 	if len(suits) == 0 {
-		err := errors.New("Length of suits slice must be greater than 0!")
+		err := errors.New("length of suits slice must be greater than 0")
 		log.Fatal(err)
 		return nil, err
 	}
@@ -67,9 +109,13 @@ func New(values []string, suits []string, options ...func(*[]Card)) ([]Card, err
 			i++
 		}
 	}
+
+	for _, opt := range options {
+		opt(&deck)
+	}
+
 	return deck, nil
 }
 
-// func Shuffle(deck *[]Card) {
-
-// }
+func sortDeck(less func(i, j int) bool) {
+}

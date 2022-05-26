@@ -1,4 +1,4 @@
-package main
+package deck
 
 import "testing"
 
@@ -44,23 +44,48 @@ func TestSameSuitFalse(t *testing.T) {
 func TestNew(t *testing.T) {
 	values := []string{"A", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
 	suits := []string{"spades", "diamonds", "clubs", "hearts"}
-	deck, err := New(values, suits)
+	deck, err := NewDeck(values, suits)
 	if err != nil {
 		t.Fatal(err)
 	}
-	check_cards := []Card{
+	checkCards := []Card{
 		{"A", "diamonds"},
 		{"5", "hearts"},
 		{"10", "clubs"},
 		{"Q", "spades"},
 	}
-	false_card := Card{"3", "piekens"}
-	for _, c := range check_cards {
-		if Contains(deck, c) {
+	falseCard := Card{"3", "piekens"}
+	for _, c := range checkCards {
+		if !Contains(deck, c) {
 			t.Fatalf("The deck %v contains card %s", deck, c)
 		}
 	}
-	if Contains(deck, false_card) {
-		t.Fatalf("The deck %v does not contain card %s", deck, false_card)
+	if Contains(deck, falseCard) {
+		t.Fatalf("The deck %v does not contain card %s", deck, falseCard)
 	}
 }
+
+func TestCardOrder(t *testing.T) {
+	cards := []Card{
+		{"A", "hearts"},
+		{"A", "spades"},
+		{"3", "hearts"},
+	}
+	if cards[0].Less(cards[1]) {
+		t.Fatalf("%s is bigger than %s", cards[0], cards[1])
+	}
+	if cards[2].Less(cards[1]) {
+		t.Fatalf("%s is smaller than %s", cards[1], cards[2])
+	}
+	if cards[0].Less(cards[2]) {
+		t.Fatalf("%s is bigger than %s", cards[0], cards[2])
+	}
+}
+
+// func TestSort(t *testing.T) {
+// 	values := []string{"K", "3", "4"}
+// 	suits := []string{"hearts", "diamonds"}
+// 	cardValues := func(c1, c2 *Card) bool {
+// 		return c1.Less(c2)
+// 	}
+// }
